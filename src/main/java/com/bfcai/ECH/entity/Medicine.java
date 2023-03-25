@@ -1,15 +1,13 @@
-package com.bfcai.ECH.Entity;
+package com.bfcai.ECH.entity;
 
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Table(name = "medicine")
 @Data
-@ToString
 @NoArgsConstructor
 public class Medicine {
     @Id
@@ -21,10 +19,10 @@ public class Medicine {
     private String M_name;
 
     @Column(name = "duration")
-    private int duration;
+    private String duration;
 
     @Column(name = "frequency")
-    private int freuency;
+    private int frequency;
 
     @Column(name = "time")
     private float time;
@@ -32,16 +30,28 @@ public class Medicine {
     @Column(name = "number_pills")
     private int number_pills;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id",referencedColumnName = "id")
     private Patient patient;
 
-    public Medicine(String m_name, int duration, int freuency, float time, int number_pills, Patient patient) {
+    public Medicine(String m_name, String duration, int frequency, float time, int number_pills, Patient patient) {
         M_name = m_name;
         this.duration = duration;
-        this.freuency = freuency;
+        this.frequency = frequency;
         this.time = time;
         this.number_pills = number_pills;
         this.patient = patient;
+    }
+
+    @Override
+    public String toString() {
+        return "Medicine{" +
+                "id=" + id +
+                ", M_name='" + M_name + '\'' +
+                ", duration='" + duration + '\'' +
+                ", frequency=" + frequency +
+                ", time=" + time +
+                ", number_pills=" + number_pills +
+                '}';
     }
 }

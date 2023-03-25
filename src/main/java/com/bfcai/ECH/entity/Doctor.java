@@ -1,10 +1,12 @@
-package com.bfcai.ECH.Entity;
+package com.bfcai.ECH.entity;
 
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.util.List;
 
 @Entity
 @Table(name = "doctor")
@@ -25,6 +27,9 @@ public class Doctor {
 
     @Column(name = "location")
     private String location;
+
+    @ManyToMany(mappedBy = "doctors")
+    private List<Patient> patients;
 
     public Doctor(String name, String phone, String location) {
         this.name = name;

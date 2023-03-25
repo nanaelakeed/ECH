@@ -1,14 +1,16 @@
-package com.bfcai.ECH.Entity;
+package com.bfcai.ECH.entity;
 
 
 import com.bfcai.ECH.type.GenderType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Table(name = "companion")
 @Data
-@ToString
 @NoArgsConstructor
 public class Companion {
     @Id
@@ -37,12 +39,11 @@ public class Companion {
     @Column(name = "relative")
     private String relative;
 
-    @ManyToOne
-    @JoinColumn(name = "patient_id",referencedColumnName = "id")
-    private Patient patient;
+    @ManyToMany(mappedBy = "companions")
+    private List<Patient> patients;
 
 
-    public Companion(String name, int age, String email, String password, GenderType gender, String phone, String relative, Patient patient) {
+    public Companion(String name, int age, String email, String password, GenderType gender, String phone, String relative) {
         this.name = name;
         this.age = age;
         this.email = email;
@@ -50,6 +51,19 @@ public class Companion {
         this.gender = gender;
         this.phone = phone;
         this.relative = relative;
-        this.patient = patient;
+    }
+
+    @Override
+    public String toString() {
+        return "Companion{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", gender=" + gender +
+                ", phone='" + phone + '\'' +
+                ", relative='" + relative + '\'' +
+                '}';
     }
 }
