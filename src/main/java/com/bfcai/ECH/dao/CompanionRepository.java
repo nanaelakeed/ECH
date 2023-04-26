@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -20,4 +21,8 @@ public interface CompanionRepository extends JpaRepository<Companion, Long> {
     @Query(value = "select c.patients from Companion c where c.id=:companionId")
     List<Patient> findAllPatientsForCompanion(@Param(value = "companionId")Long companionId);
 
+    Optional<Companion> findCompanionByEmail(String email);
+
+    @Query(value = "select c from Companion c left join fetch c.patients where c.id=:companionId")
+    Companion getCompanionById(@Param("companionId") Long companionId);
 }

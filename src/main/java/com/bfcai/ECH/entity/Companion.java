@@ -2,11 +2,11 @@ package com.bfcai.ECH.entity;
 
 
 import com.bfcai.ECH.type.GenderType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "companion")
@@ -39,6 +39,7 @@ public class Companion {
     @Column(name = "relative")
     private String relative;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "companions")
     private List<Patient> patients;
 

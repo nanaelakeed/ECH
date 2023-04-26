@@ -3,17 +3,21 @@ package com.bfcai.ECH.service;
 import com.bfcai.ECH.dao.CompanionRepository;
 import com.bfcai.ECH.dao.PatientRepository;
 import com.bfcai.ECH.dto.ApiResponseDto;
+import com.bfcai.ECH.dto.LoginRequestDTO;
 import com.bfcai.ECH.dto.ResponseData;
 import com.bfcai.ECH.entity.Companion;
 import com.bfcai.ECH.entity.Patient;
+import com.bfcai.ECH.exception.NotFoundException;
 import com.bfcai.ECH.type.StatusCode;
 import com.bfcai.ECH.type.StatusMessage;
+import com.bfcai.ECH.util.LogUtil;
 import com.bfcai.ECH.wrapper.CompanionWrapper;
 import com.bfcai.ECH.wrapper.PatientWrapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,13 +32,14 @@ public class CompanionService {
 
     @PersistenceContext
     private EntityManager entityManager;
-
+    private final PasswordEncoder passwordEncoder;
     private final CompanionRepository companionRepository;
     private final ModelMapper modelMapper;
 
     public ApiResponseDto saveCompanion(Companion companion) {
         ApiResponseDto responseDto = new ApiResponseDto<>();
         if (this.validateCompanionData(companion)) {
+            companion.setPassword(passwordEncoder.encode(companion.getPassword()));
             responseDto = ApiResponseDto.builder()
                     .responseData(ResponseData.builder()
                             .data(this.companionRepository.save(companion))
@@ -48,6 +53,18 @@ public class CompanionService {
             responseDto.setMessage(StatusMessage.ALREADY_EXISTS);
         }
         return responseDto;
+    }
+    public ApiResponseDto authLogin(LoginRequestDTO loginRequestDTO) {
+        Companion companion=this.companionRepository.findCompanionByEmail(loginRequestDTO.getEmail()).orElseThrow(()->new NotFoundException("No user with this email found"));
+        return ApiResponseDto
+                .builder()
+                .responseData(
+                        ResponseData
+                                .builder()
+                                .data(passwordEncoder.matches(loginRequestDTO.getPassword(),companion.getPassword()))
+                                .build()
+                )
+                .build();
     }
 
     @Transactional
@@ -117,6 +134,30 @@ public class CompanionService {
         } else {
             return false;
         }
+    }
+
+    @Transactional
+    public ApiResponseDto updateCompanion(CompanionWrapper companionData,Long companionId){
+            Companion savedCompanion=this.companionRepository.findById(companionId).orElseThrow(()->new NotFoundException("No companion found with id : "+companionId));
+            savedCompanion.setPassword(passwordEncoder.encode(companionData.getPassword()));
+            savedCompanion.setAge(companionData.getAge());
+            savedCompanion.setGender(companionData.getGender());
+            savedCompanion.setName(companionData.getName());
+            savedCompanion.setPhone(companionData.getPhone());
+            savedCompanion.setRelative(companionData.getRelative());
+            savedCompanion.setEmail(companionData.getEmail());
+            return ApiResponseDto.builder()
+                    .responseData(ResponseData.builder()
+                            .data(savedCompanion)
+                            .count(1L)
+                            .build())
+                    .code(StatusCode.SUCCESS.serverCode)
+                    .message(StatusMessage.SUCCESS)
+                    .build();
+//        }else {
+//            responseDto.setCode(StatusCode.NOT_FOUND.serverCode);
+//            responseDto.setMessage(StatusMessage.NOT_FOUND);
+//        }
     }
 
     //Delete Companion

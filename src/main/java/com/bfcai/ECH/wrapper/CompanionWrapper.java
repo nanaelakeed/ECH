@@ -18,11 +18,11 @@ public class CompanionWrapper {
 
     private String email;
 
-    private String password;
-
     private GenderType gender;
 
     private String phone;
 
     private String relative;
+
+    private String password;
 }
