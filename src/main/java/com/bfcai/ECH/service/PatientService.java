@@ -3,6 +3,7 @@ package com.bfcai.ECH.service;
 
 import com.bfcai.ECH.dao.PatientRepository;
 import com.bfcai.ECH.dto.ApiResponseDto;
+import com.bfcai.ECH.dto.LoginRequestDTO;
 import com.bfcai.ECH.dto.ResponseData;
 import com.bfcai.ECH.entity.Companion;
 import com.bfcai.ECH.entity.Medicine;
@@ -14,9 +15,12 @@ import com.bfcai.ECH.type.StatusMessage;
 import com.bfcai.ECH.wrapper.CompanionWrapper;
 import com.bfcai.ECH.wrapper.DoctorWrapper;
 import com.bfcai.ECH.wrapper.MedicineWrapper;
+import com.bfcai.ECH.wrapper.PatientWrapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +34,7 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final ModelMapper modelMapper;
     private final MedicineService medicineService;
+    private final PasswordEncoder passwordEncoder;
 
     public ApiResponseDto<Patient> FindById(Long id) {
         ApiResponseDto responseDto = new ApiResponseDto<>();
@@ -56,7 +61,7 @@ public class PatientService {
 
     public ApiResponseDto<List<Companion>> findCompanionsForPatient(Long id) {
         ApiResponseDto responseDto = new ApiResponseDto<>();
-        if(!this.validatePatientData(this.patientRepository.findById(id).orElse(null))) {
+        if (!this.validatePatientData(this.patientRepository.findById(id).orElse(null))) {
             List<CompanionWrapper> companions = this.patientRepository.findAllCompanionsForPatient(id)
                     .stream()
                     .map(companion -> this.modelMapper.map(companion, CompanionWrapper.class))
@@ -82,11 +87,11 @@ public class PatientService {
     }
 
 
-
     public ApiResponseDto save(Patient patient) {
-        if (this.validatePatientData(patient)) {
+        if (!this.validatePatientData(patient)) {
             throw new ConflictException("Email or phone already existed");
         } else {
+            patient.setPassword(this.passwordEncoder.encode(patient.getPassword()));
             return ApiResponseDto.builder()
                     .responseData(
                             ResponseData.builder()
@@ -152,19 +157,48 @@ public class PatientService {
 
     public ApiResponseDto deletePatient(Long patientId) {
         ApiResponseDto responseDto = new ApiResponseDto<>();
-        Patient patient=this.patientRepository.findById(patientId).orElse(null);
-        if(patient!=null){
+        Patient patient = this.patientRepository.findById(patientId).orElse(null);
+        if (patient != null) {
             this.medicineService.deleteByPatientId(patientId);
             this.patientRepository.deleteById(patientId);
-        }
-        else {
+        } else {
             responseDto.setCode(StatusCode.NOT_FOUND.serverCode);
             responseDto.setMessage(StatusMessage.NOT_FOUND);
         }
         return responseDto;
-}
+    }
 
-    public Set<Patient> fetchPatientsByIds(List<Long> patientsIds) {
-        return this.patientRepository.fetchPatientsByIds(patientsIds);
+
+    @Transactional
+    public ApiResponseDto updatePatient(PatientWrapper patientWrapper,Long id){
+        Patient savedPatient=this.patientRepository.findById(id).orElseThrow(()->new NotFoundException("No Patient with id"+id));
+        savedPatient.setPassword(passwordEncoder.encode(patientWrapper.getPassword()));
+        savedPatient.setAge(patientWrapper.getAge());
+        savedPatient.setEmail(patientWrapper.getEmail());
+        savedPatient.setGender(patientWrapper.getGender());
+        savedPatient.setName(patientWrapper.getName());
+        savedPatient.setDiseases(patientWrapper.getDiseases());
+        savedPatient.setPhone(patientWrapper.getPhone());
+        return ApiResponseDto.builder()
+                .responseData(ResponseData.builder()
+                        .data(this.modelMapper.map(savedPatient,PatientWrapper.class))
+                        .count(1L)
+                        .build())
+                .code(StatusCode.SUCCESS.serverCode)
+                .message(StatusMessage.SUCCESS)
+                .build();
+    }
+
+    public ApiResponseDto authLogin(LoginRequestDTO loginRequestDTO) {
+        Patient patient = this.patientRepository.findPatientByEmail(loginRequestDTO.getEmail()).orElseThrow(() -> new NotFoundException("No user with this email found"));
+        return ApiResponseDto
+                .builder()
+                .responseData(
+                        ResponseData
+                                .builder()
+                                .data(passwordEncoder.matches(loginRequestDTO.getPassword(), patient.getPassword()))
+                                .build()
+                )
+                .build();
     }
 }

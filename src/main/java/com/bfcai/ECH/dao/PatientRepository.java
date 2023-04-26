@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -33,4 +34,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
 
     @Query(value = "select distinct p from Patient p where p.id in :patientsIds")
     Set<Patient> fetchPatientsByIds(List<Long> patientsIds);
+
+    Optional<Patient> findPatientByEmail(String email);
 }
