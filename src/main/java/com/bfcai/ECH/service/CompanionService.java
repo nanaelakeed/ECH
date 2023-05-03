@@ -154,10 +154,6 @@ public class CompanionService {
                     .code(StatusCode.SUCCESS.serverCode)
                     .message(StatusMessage.SUCCESS)
                     .build();
-//        }else {
-//            responseDto.setCode(StatusCode.NOT_FOUND.serverCode);
-//            responseDto.setMessage(StatusMessage.NOT_FOUND);
-//        }
     }
 
     //Delete Companion
