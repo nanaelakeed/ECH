@@ -4,7 +4,6 @@ package com.bfcai.ECH.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import com.bfcai.ECH.type.GenderType;
-import org.hibernate.annotations.Cascade;
 
 import java.util.List;
 import java.util.Set;

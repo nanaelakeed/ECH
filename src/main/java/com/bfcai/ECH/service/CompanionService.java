@@ -42,7 +42,7 @@ public class CompanionService {
             companion.setPassword(passwordEncoder.encode(companion.getPassword()));
             responseDto = ApiResponseDto.builder()
                     .responseData(ResponseData.builder()
-                            .data(this.companionRepository.save(companion))
+                            .data(this.modelMapper.map(this.companionRepository.save(companion),CompanionWrapper.class))
                             .count(1L)
                             .build())
                     .code(StatusCode.SUCCESS.serverCode)
@@ -148,7 +148,7 @@ public class CompanionService {
             savedCompanion.setEmail(companionData.getEmail());
             return ApiResponseDto.builder()
                     .responseData(ResponseData.builder()
-                            .data(savedCompanion)
+                            .data(this.modelMapper.map(savedCompanion,CompanionWrapper.class))
                             .count(1L)
                             .build())
                     .code(StatusCode.SUCCESS.serverCode)

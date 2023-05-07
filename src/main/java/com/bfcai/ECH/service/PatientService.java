@@ -46,14 +46,19 @@ public class PatientService {
                     .message(StatusMessage.SUCCESS)
                     .responseData(
                             ResponseData.builder()
-                                    .data(fetchedPatient)
+                                    .data(this.modelMapper.map(fetchedPatient,PatientWrapper.class))
                                     .count(1L)
                                     .build()
                     )
                     .build();
 
         } else {
-            throw new NotFoundException("No patient exist with id " + id);
+
+            responseDto = ApiResponseDto
+                    .builder()
+                    .responseData(null)
+                    .message(StatusMessage.NOT_FOUND)
+                    .build();
         }
         return responseDto;
     }
@@ -95,7 +100,7 @@ public class PatientService {
             return ApiResponseDto.builder()
                     .responseData(
                             ResponseData.builder()
-                                    .data(this.patientRepository.save(patient))
+                                    .data(this.modelMapper.map(this.patientRepository.save(patient),PatientWrapper.class))
                                     .count(1L)
                                     .build()
                     )

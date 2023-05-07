@@ -3,10 +3,8 @@ package com.bfcai.ECH.controller;
 
 import com.bfcai.ECH.dao.MedicineRepository;
 import com.bfcai.ECH.dto.ApiResponseDto;
-import com.bfcai.ECH.dto.ResponseData;
 import com.bfcai.ECH.entity.Medicine;
 import com.bfcai.ECH.service.MedicineService;
-import com.bfcai.ECH.util.LogUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MedicineController {
 
-    private final MedicineRepository medicineRepository;
     private final MedicineService medicineService;
 
     @PostMapping

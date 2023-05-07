@@ -9,6 +9,7 @@ import com.bfcai.ECH.entity.Doctor;
 import com.bfcai.ECH.entity.Patient;
 import com.bfcai.ECH.type.StatusCode;
 import com.bfcai.ECH.type.StatusMessage;
+import com.bfcai.ECH.wrapper.DoctorWrapper;
 import com.bfcai.ECH.wrapper.PatientWrapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -34,7 +35,7 @@ public class DoctorService {
         if(this.validateDoctorByPhone(doctor)){
             responseDto=ApiResponseDto.builder()
                     .responseData(ResponseData.builder()
-                            .data(this.doctorRepository.save(doctor))
+                            .data(this.modelMapper.map(this.doctorRepository.save(doctor), DoctorWrapper.class))
                             .count(1L)
                             .build())
                     .code(StatusCode.SUCCESS.serverCode)

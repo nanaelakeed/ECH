@@ -27,7 +27,7 @@ public class MedicineService {
         ApiResponseDto responseDto=new ApiResponseDto<>();
         responseDto=ApiResponseDto.builder()
                     .responseData(ResponseData.builder()
-                            .data(this.medicineRepository.save(medicine))
+                            .data(this.modelMapper.map(this.medicineRepository.save(medicine),MedicineWrapper.class))
                             .count(1L)
                             .build())
                     .code(StatusCode.SUCCESS.serverCode)
