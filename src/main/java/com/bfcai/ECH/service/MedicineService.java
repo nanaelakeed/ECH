@@ -1,7 +1,6 @@
 package com.bfcai.ECH.service;
 
 
-import com.bfcai.ECH.controller.MedicineController;
 import com.bfcai.ECH.dao.MedicineRepository;
 import com.bfcai.ECH.dto.ApiResponseDto;
 import com.bfcai.ECH.dto.ResponseData;

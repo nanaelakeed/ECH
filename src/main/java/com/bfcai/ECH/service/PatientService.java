@@ -6,7 +6,6 @@ import com.bfcai.ECH.dto.ApiResponseDto;
 import com.bfcai.ECH.dto.LoginRequestDTO;
 import com.bfcai.ECH.dto.ResponseData;
 import com.bfcai.ECH.entity.Companion;
-import com.bfcai.ECH.entity.Medicine;
 import com.bfcai.ECH.entity.Patient;
 import com.bfcai.ECH.exception.ConflictException;
 import com.bfcai.ECH.exception.NotFoundException;
@@ -23,8 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

@@ -1,7 +1,6 @@
 package com.bfcai.ECH.service;
 
 import com.bfcai.ECH.dao.CompanionRepository;
-import com.bfcai.ECH.dao.PatientRepository;
 import com.bfcai.ECH.dto.ApiResponseDto;
 import com.bfcai.ECH.dto.LoginRequestDTO;
 import com.bfcai.ECH.dto.ResponseData;
@@ -10,7 +9,6 @@ import com.bfcai.ECH.entity.Patient;
 import com.bfcai.ECH.exception.NotFoundException;
 import com.bfcai.ECH.type.StatusCode;
 import com.bfcai.ECH.type.StatusMessage;
-import com.bfcai.ECH.util.LogUtil;
 import com.bfcai.ECH.wrapper.CompanionWrapper;
 import com.bfcai.ECH.wrapper.PatientWrapper;
 import jakarta.persistence.EntityManager;
@@ -21,9 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

@@ -4,7 +4,6 @@ package com.bfcai.ECH.service;
 import com.bfcai.ECH.dao.DoctorRepository;
 import com.bfcai.ECH.dto.ApiResponseDto;
 import com.bfcai.ECH.dto.ResponseData;
-import com.bfcai.ECH.entity.Companion;
 import com.bfcai.ECH.entity.Doctor;
 import com.bfcai.ECH.entity.Patient;
 import com.bfcai.ECH.type.StatusCode;
