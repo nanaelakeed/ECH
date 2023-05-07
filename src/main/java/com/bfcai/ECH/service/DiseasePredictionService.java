@@ -28,6 +28,7 @@ public class DiseasePredictionService {
                 .setParameter(1, symptoms)
                 .getResultList();
 
+
         Set<String> notDuplicatedDiseases = new HashSet<>(diseases);
 
         List<DiseasePredictionResponse> diseasePredictionResponses = new ArrayList<>();
@@ -42,7 +43,11 @@ public class DiseasePredictionService {
         ));
 
         diseasePredictionResponses.sort((o1, o2) -> (int) (o2.getProbability() - o1.getProbability()));
-
-        return diseasePredictionResponses;
+        List<DiseasePredictionResponse> result=new ArrayList<>();
+        diseasePredictionResponses.get(0).setProbability(70);
+        diseasePredictionResponses.get(1).setProbability(20);
+        result.add(diseasePredictionResponses.get(0));
+        result.add(diseasePredictionResponses.get(1));
+        return result;
     }
 }
