@@ -40,7 +40,13 @@ public class Patient {
     @Column(name = "phone", unique = true)
     private String phone;
 
-    @ManyToMany
+    @ManyToMany(cascade =
+            {
+                    CascadeType.DETACH,
+                    CascadeType.MERGE,
+                    CascadeType.REFRESH,
+                    CascadeType.PERSIST
+            }, targetEntity = Companion.class,fetch = FetchType.LAZY)
     @JoinTable(name = "patient_companion",
             joinColumns = {@JoinColumn(name = "patient_id")},
             inverseJoinColumns = {@JoinColumn(name = "companion_id")}

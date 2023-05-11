@@ -33,18 +33,20 @@ public class CompanionService {
     private final CompanionRepository companionRepository;
     private final ModelMapper modelMapper;
 
-    public ApiResponseDto saveCompanion(Companion companion) {
+    public ApiResponseDto saveCompanion(CompanionWrapper companion,Long patient_id) {
         ApiResponseDto responseDto = new ApiResponseDto<>();
         if (this.validateCompanionData(companion)) {
+            Companion cc=this.companionRepository.save(this.modelMapper.map(companion,Companion.class));
             companion.setPassword(passwordEncoder.encode(companion.getPassword()));
             responseDto = ApiResponseDto.builder()
                     .responseData(ResponseData.builder()
-                            .data(this.modelMapper.map(this.companionRepository.save(companion),CompanionWrapper.class))
+                            .data(cc)
                             .count(1L)
                             .build())
                     .code(StatusCode.SUCCESS.serverCode)
                     .message(StatusMessage.CREATED)
                     .build();
+            this.savePatientCompanion(patient_id,cc.getId());
         } else {
             responseDto.setCode(StatusCode.ALREADY_EXISTS.serverCode);
             responseDto.setMessage(StatusMessage.ALREADY_EXISTS);
@@ -65,17 +67,17 @@ public class CompanionService {
     }
 
     @Transactional
-    public void savePatientCompanion(Companion companion) {
-        for (Patient patient: companion.getPatients()) {
+    public void savePatientCompanion(Long patient_id,Long companion_id) {
+//        for (Patient patient : patients) {
             this.entityManager.createNativeQuery("insert into patient_companion (patient_id,companion_id) values (?,?)")
-                    .setParameter(1, patient.getId())
-                    .setParameter(2, companion.getId())
+                    .setParameter(1, patient_id)
+                    .setParameter(2, companion_id)
                     .executeUpdate();
-        }
+       // }
     }
 
 
-    private boolean validateCompanionData(Companion companion) {
+    private boolean validateCompanionData(CompanionWrapper companion) {
         List<Companion> companions = this.companionRepository.findCompanionByEmailOrPhone(companion.getEmail(), companion.getPhone());
         return companions.isEmpty();
     }

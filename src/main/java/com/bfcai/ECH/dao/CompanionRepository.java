@@ -25,4 +25,6 @@ public interface CompanionRepository extends JpaRepository<Companion, Long> {
 
     @Query(value = "select c from Companion c left join fetch c.patients where c.id=:companionId")
     Companion getCompanionById(@Param("companionId") Long companionId);
+
+
 }

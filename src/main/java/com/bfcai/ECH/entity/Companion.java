@@ -2,7 +2,6 @@ package com.bfcai.ECH.entity;
 
 
 import com.bfcai.ECH.type.GenderType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,9 +38,18 @@ public class Companion {
     @Column(name = "relative")
     private String relative;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "companions")
-    private List<Patient> patients;
+
+    @ManyToMany( cascade = {
+            CascadeType.DETACH,
+            CascadeType.MERGE,
+            CascadeType.REFRESH,
+            CascadeType.PERSIST
+    } , targetEntity = Patient.class , fetch = FetchType.LAZY)
+    @JoinTable(name = "patient_companion",
+            joinColumns = {@JoinColumn(name = "companion_id")},
+            inverseJoinColumns = {@JoinColumn(name = "patient_id")}
+    )
+    List<Patient> patients;
 
 
     public Companion(String name, int age, String email, String password, GenderType gender, String phone, String relative) {

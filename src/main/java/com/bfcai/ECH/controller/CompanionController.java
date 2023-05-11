@@ -18,10 +18,8 @@ public class CompanionController {
 
 
     @PostMapping
-    public ApiResponseDto saveCompanion(@RequestBody Companion companion) {
-        Companion savedCompanion=(Companion) this.companionService.saveCompanion(companion).getResponseData().getData();
-        this.companionService.savePatientCompanion(savedCompanion);
-        return ApiResponseDto.builder().message(StatusMessage.SUCCESS).build();
+    public ApiResponseDto saveCompanion(@RequestBody CompanionWrapper companion,@RequestParam Long patient_id) {
+        return this.companionService.saveCompanion(companion,patient_id);
     }
 
     //Getting specific companion
