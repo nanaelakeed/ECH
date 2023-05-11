@@ -43,7 +43,7 @@ public class PatientService {
                     .message(StatusMessage.SUCCESS)
                     .responseData(
                             ResponseData.builder()
-                                    .data(this.modelMapper.map(fetchedPatient,PatientWrapper.class))
+                                    .data(this.modelMapper.map(fetchedPatient, PatientWrapper.class))
                                     .count(1L)
                                     .build()
                     )
@@ -97,7 +97,7 @@ public class PatientService {
             return ApiResponseDto.builder()
                     .responseData(
                             ResponseData.builder()
-                                    .data(this.modelMapper.map(this.patientRepository.save(patient),PatientWrapper.class))
+                                    .data(this.modelMapper.map(this.patientRepository.save(patient), PatientWrapper.class))
                                     .count(1L)
                                     .build()
                     )
@@ -172,8 +172,8 @@ public class PatientService {
 
 
     @Transactional
-    public ApiResponseDto updatePatient(PatientWrapper patientWrapper,Long id){
-        Patient savedPatient=this.patientRepository.findById(id).orElseThrow(()->new NotFoundException("No Patient with id"+id));
+    public ApiResponseDto updatePatient(PatientWrapper patientWrapper, Long id) {
+        Patient savedPatient = this.patientRepository.findById(id).orElseThrow(() -> new NotFoundException("No Patient with id" + id));
         savedPatient.setPassword(passwordEncoder.encode(patientWrapper.getPassword()));
         savedPatient.setAge(patientWrapper.getAge());
         savedPatient.setEmail(patientWrapper.getEmail());
@@ -183,7 +183,7 @@ public class PatientService {
         savedPatient.setPhone(patientWrapper.getPhone());
         return ApiResponseDto.builder()
                 .responseData(ResponseData.builder()
-                        .data(this.modelMapper.map(savedPatient,PatientWrapper.class))
+                        .data(this.modelMapper.map(savedPatient, PatientWrapper.class))
                         .count(1L)
                         .build())
                 .code(StatusCode.SUCCESS.serverCode)
@@ -192,15 +192,48 @@ public class PatientService {
     }
 
     public ApiResponseDto authLogin(LoginRequestDTO loginRequestDTO) {
-        Patient patient = this.patientRepository.findPatientByEmail(loginRequestDTO.getEmail()).orElseThrow(() -> new NotFoundException("No user with this email found"));
-        return ApiResponseDto
-                .builder()
-                .responseData(
-                        ResponseData
-                                .builder()
-                                .data(passwordEncoder.matches(loginRequestDTO.getPassword(), patient.getPassword()))
-                                .build()
-                )
-                .build();
+        ApiResponseDto responseDto=new ApiResponseDto<>();
+        Patient patient = this.patientRepository.findPatientByEmail(loginRequestDTO.getEmail()).orElse(null);
+        if (patient == null) {
+            return ApiResponseDto
+                    .builder()
+                    .responseData(
+                            ResponseData
+                                    .builder()
+                                    .data("No User with this email")
+                                    .build()
+                    )
+                    .message(StatusMessage.NOT_FOUND)
+                    .build();
+        } else {
+            if(passwordEncoder.matches(loginRequestDTO.getPassword(), patient.getPassword())) {
+                Long patientId=patient.getId();
+                responseDto= ApiResponseDto
+                        .builder()
+                        .responseData(
+                                ResponseData
+                                        .builder()
+                                        .data(patientId)
+                                        .count(1L)
+                                        .build()
+                        )
+                        .message(StatusMessage.SUCCESS)
+                        .code(StatusCode.SUCCESS.serverCode)
+                        .build();
+            }
+            else{
+                responseDto= ApiResponseDto
+                        .builder()
+                        .responseData(
+                                ResponseData
+                                        .builder()
+                                        .data("Incorrect Password")
+                                        .build()
+                        )
+                        .message(StatusMessage.BAD_REQUEST)
+                        .build();
+            }
+        }
+        return responseDto;
     }
 }

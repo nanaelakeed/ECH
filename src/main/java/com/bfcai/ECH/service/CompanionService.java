@@ -33,10 +33,10 @@ public class CompanionService {
     private final CompanionRepository companionRepository;
     private final ModelMapper modelMapper;
 
-    public ApiResponseDto saveCompanion(CompanionWrapper companion,Long patient_id) {
+    public ApiResponseDto saveCompanion(CompanionWrapper companion, Long patient_id) {
         ApiResponseDto responseDto = new ApiResponseDto<>();
         if (this.validateCompanionData(companion)) {
-            Companion cc=this.companionRepository.save(this.modelMapper.map(companion,Companion.class));
+            Companion cc = this.companionRepository.save(this.modelMapper.map(companion, Companion.class));
             companion.setPassword(passwordEncoder.encode(companion.getPassword()));
             responseDto = ApiResponseDto.builder()
                     .responseData(ResponseData.builder()
@@ -46,34 +46,69 @@ public class CompanionService {
                     .code(StatusCode.SUCCESS.serverCode)
                     .message(StatusMessage.CREATED)
                     .build();
-            this.savePatientCompanion(patient_id,cc.getId());
+            this.savePatientCompanion(patient_id, cc.getId());
         } else {
             responseDto.setCode(StatusCode.ALREADY_EXISTS.serverCode);
             responseDto.setMessage(StatusMessage.ALREADY_EXISTS);
         }
         return responseDto;
     }
+
     public ApiResponseDto authLogin(LoginRequestDTO loginRequestDTO) {
-        Companion companion=this.companionRepository.findCompanionByEmail(loginRequestDTO.getEmail()).orElseThrow(()->new NotFoundException("No user with this email found"));
-        return ApiResponseDto
-                .builder()
-                .responseData(
-                        ResponseData
-                                .builder()
-                                .data(passwordEncoder.matches(loginRequestDTO.getPassword(),companion.getPassword()))
-                                .build()
-                )
-                .build();
+        ApiResponseDto responseDto=new ApiResponseDto<>();
+        Companion companion = this.companionRepository.findCompanionByEmail(loginRequestDTO.getEmail()).orElse(null);
+        if (companion == null) {
+           responseDto= ApiResponseDto
+                    .builder()
+                    .responseData(
+                            ResponseData
+                                    .builder()
+                                    .data("No User with this email")
+                                    .build()
+                    )
+                    .message(StatusMessage.NOT_FOUND)
+                    .build();
+        }
+        else {
+            if(passwordEncoder.matches(loginRequestDTO.getPassword(), companion.getPassword())) {
+                Long companionId = companion.getId();
+                responseDto= ApiResponseDto
+                        .builder()
+                        .responseData(
+                                ResponseData
+                                        .builder()
+                                        .data(companionId)
+                                        .count(1L)
+                                        .build()
+                        )
+                        .message(StatusMessage.SUCCESS)
+                        .code(StatusCode.SUCCESS.serverCode)
+                        .build();
+            }
+            else{
+                responseDto= ApiResponseDto
+                        .builder()
+                        .responseData(
+                                ResponseData
+                                        .builder()
+                                        .data("Incorrect Password")
+                                        .build()
+                        )
+                        .message(StatusMessage.BAD_REQUEST)
+                        .build();
+            }
+        }
+        return responseDto;
     }
 
     @Transactional
-    public void savePatientCompanion(Long patient_id,Long companion_id) {
+    public void savePatientCompanion(Long patient_id, Long companion_id) {
 //        for (Patient patient : patients) {
-            this.entityManager.createNativeQuery("insert into patient_companion (patient_id,companion_id) values (?,?)")
-                    .setParameter(1, patient_id)
-                    .setParameter(2, companion_id)
-                    .executeUpdate();
-       // }
+        this.entityManager.createNativeQuery("insert into patient_companion (patient_id,companion_id) values (?,?)")
+                .setParameter(1, patient_id)
+                .setParameter(2, companion_id)
+                .executeUpdate();
+        // }
     }
 
 
@@ -136,23 +171,23 @@ public class CompanionService {
     }
 
     @Transactional
-    public ApiResponseDto updateCompanion(CompanionWrapper companionData,Long companionId){
-            Companion savedCompanion=this.companionRepository.findById(companionId).orElseThrow(()->new NotFoundException("No companion found with id : "+companionId));
-            savedCompanion.setPassword(passwordEncoder.encode(companionData.getPassword()));
-            savedCompanion.setAge(companionData.getAge());
-            savedCompanion.setGender(companionData.getGender());
-            savedCompanion.setName(companionData.getName());
-            savedCompanion.setPhone(companionData.getPhone());
-            savedCompanion.setRelative(companionData.getRelative());
-            savedCompanion.setEmail(companionData.getEmail());
-            return ApiResponseDto.builder()
-                    .responseData(ResponseData.builder()
-                            .data(this.modelMapper.map(savedCompanion,CompanionWrapper.class))
-                            .count(1L)
-                            .build())
-                    .code(StatusCode.SUCCESS.serverCode)
-                    .message(StatusMessage.SUCCESS)
-                    .build();
+    public ApiResponseDto updateCompanion(CompanionWrapper companionData, Long companionId) {
+        Companion savedCompanion = this.companionRepository.findById(companionId).orElseThrow(() -> new NotFoundException("No companion found with id : " + companionId));
+        savedCompanion.setPassword(passwordEncoder.encode(companionData.getPassword()));
+        savedCompanion.setAge(companionData.getAge());
+        savedCompanion.setGender(companionData.getGender());
+        savedCompanion.setName(companionData.getName());
+        savedCompanion.setPhone(companionData.getPhone());
+        savedCompanion.setRelative(companionData.getRelative());
+        savedCompanion.setEmail(companionData.getEmail());
+        return ApiResponseDto.builder()
+                .responseData(ResponseData.builder()
+                        .data(this.modelMapper.map(savedCompanion, CompanionWrapper.class))
+                        .count(1L)
+                        .build())
+                .code(StatusCode.SUCCESS.serverCode)
+                .message(StatusMessage.SUCCESS)
+                .build();
     }
 
     //Delete Companion

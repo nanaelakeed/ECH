@@ -2,9 +2,7 @@ package com.bfcai.ECH.controller;
 
 import com.bfcai.ECH.dto.ApiResponseDto;
 import com.bfcai.ECH.dto.LoginRequestDTO;
-import com.bfcai.ECH.entity.Companion;
 import com.bfcai.ECH.service.CompanionService;
-import com.bfcai.ECH.type.StatusMessage;
 import com.bfcai.ECH.wrapper.CompanionWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +45,7 @@ public class CompanionController {
         return this.companionService.updateCompanion(companion,companionId);
     }
 
-    @GetMapping(path = "/login")
+    @PostMapping(path = "/login")
     public ApiResponseDto Login(@RequestBody LoginRequestDTO loginRequestDTO){
         return this.companionService.authLogin(loginRequestDTO);
     }
